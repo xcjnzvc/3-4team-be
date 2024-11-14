@@ -206,6 +206,7 @@ async function main() {
       ],
     });
 
+    await prisma.startUp.deleteMany();
     await prisma.startUp.createMany({
       data: mockStartups,
     });
