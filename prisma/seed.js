@@ -1,6 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+const mockCategories = [
+  { category: "소프트웨어" },
+  { category: "친환경 에너지" },
+  { category: "디지털 마케팅" },
+  { category: "우주 탐사" },
+  { category: "클라우드 & AI" },
+];
+
 const mockStartups = [
   {
     name: "소프트비전",
@@ -213,13 +221,6 @@ const mockStartups = [
   },
 ];
 
-const mockCategories = [
-  { category: "소프트웨어" },
-  { category: "친환경 에너지" },
-  { category: "디지털 마케팅" },
-  { category: "우주 탐사" },
-  { category: "클라우드 & AI" },
-];
 
 async function main() {
   try {
@@ -230,6 +231,13 @@ async function main() {
     await prisma.category.deleteMany();
     console.log("카테고리 데이터 삭제 완료.");
 
+    // 새로운 카테고리 데이터 삽입
+    console.log("새로운 카테고리 데이터 삽입 중...");
+    await prisma.category.createMany({
+      data: mockCategories,
+    });
+    console.log("카테고리 데이터 삽입 완료.");
+
     // 새로운 스타트업 데이터 삽입
     console.log("새로운 스타트업 데이터 삽입 중...");
     await prisma.startUp.createMany({
@@ -237,13 +245,6 @@ async function main() {
     });
     console.log("스타트업 데이터 삽입 완료.");
 
-    // 새로운 카테고리 데이터 삽입
-    console.log("새로운 카테고리 데이터 삽입 중...");
-    await prisma.category.createMany({
-      data: mockCategories,
-    });
-    console.log("카테고리 데이터 삽입 완료.");
-    
   } catch (error) {
     console.error("초기화 및 데이터 삽입 중 오류 발생:", error);
   } finally {
