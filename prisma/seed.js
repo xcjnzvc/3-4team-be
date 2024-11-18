@@ -172,7 +172,7 @@ const mockStartups = [
     categoryId: 5,
     actualInvest: 300000000,
     simInvest: 250000000,
-    revenue: 1500000,
+    revenue: 150000000,
     employees: 40,
     description: "AI 기반의 창의적 문제 해결 솔루션을 제공",
     myCount: 3123,
@@ -213,28 +213,44 @@ const mockStartups = [
   },
 ];
 
+const mockCategories = [
+  { category: "소프트웨어" },
+  { category: "친환경 에너지" },
+  { category: "디지털 마케팅" },
+  { category: "우주 탐사" },
+  { category: "클라우드 & AI" },
+];
+
 async function main() {
   try {
-    const categories = await prisma.category.createMany({
-      data: [
-        { category: "소프트웨어" },
-        { category: "친환경 에너지" },
-        { category: "디지털 마케팅" },
-        { category: "우주 탐사" },
-        { category: "클라우드 & AI" },
-      ],
-    });
+    // 기존 데이터 삭제
+    console.log("기존 데이터 삭제 시작...");
+    await prisma.startUp.deleteMany();
+    console.log("스타트업 데이터 삭제 완료.");
+    await prisma.category.deleteMany();
+    console.log("카테고리 데이터 삭제 완료.");
 
+    // 새로운 스타트업 데이터 삽입
+    console.log("새로운 스타트업 데이터 삽입 중...");
     await prisma.startUp.createMany({
       data: mockStartups,
     });
+    console.log("스타트업 데이터 삽입 완료.");
 
-    console.log("Mock 데이터 삽입 완료");
+    // 새로운 카테고리 데이터 삽입
+    console.log("새로운 카테고리 데이터 삽입 중...");
+    await prisma.category.createMany({
+      data: mockCategories,
+    });
+    console.log("카테고리 데이터 삽입 완료.");
+    
   } catch (error) {
-    console.error("삽입 실패:", error);
+    console.error("초기화 및 데이터 삽입 중 오류 발생:", error);
   } finally {
+    // Prisma 연결 해제
     await prisma.$disconnect();
   }
 }
 
+// main 함수 실행
 main();
