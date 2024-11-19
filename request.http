@@ -16,3 +16,13 @@ Content-Type: application/json
   "password": "1234"
 }
 
+###
+PUT http://localhost:8000/api/investments/1
+Content-Type: application/json
+
+{
+  "name": "haechan",
+  "investAmount": 5000,
+  "comment": "PUT POST",
+  "password": "1234"
+}

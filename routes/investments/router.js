@@ -36,7 +36,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/', async(req, res) => {
-    try{
+    try {
       const { startUpId, name, investAmount, comment, password } = req.body;
 
       const newInvestment = await prisma.mockInvestor.create({
@@ -55,6 +55,30 @@ router.post('/', async(req, res) => {
       console.error('투자 오류 발생: ', error);
       res.status(500).json({ error: "투자 실패함" });
     }
-})
+});
+
+router.put('/:id', async(req,res) => {
+  const {id} = req.params;
+  const {  name, investAmount, comment, password } = req.body;
+
+
+  try {
+    const updatedData = await prisma.mockInvestor.update({
+      where: {id: parseInt(id)},
+      data: {
+        name,
+        investAmount,
+        comment,
+        password,
+      },
+    });
+
+    res.json(updatedData);
+
+  } catch(error) {
+    console.error('수정 실패:', error);
+    res.status(500).json({error:'수정 실패'});
+  }
+});
 
 export default router;
