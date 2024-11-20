@@ -27,4 +27,28 @@ router.get("/", async (req, res) => {
   }
 });
 
+
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const company = await prisma.startUp.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        category: true,
+      },
+    });
+
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    res.json(company);
+  } catch (error) {
+    console.error("Error fetching company:", error);
+    res.status(500).json({ error: "Failed to fetch company" });
+  }
+});
+
+
 export default router;
