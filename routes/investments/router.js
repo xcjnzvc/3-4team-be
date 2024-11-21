@@ -18,6 +18,27 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const Investor = await prisma.mockInvestor.findMany({
+      where: {
+        startUpId: parseInt(id),
+      },
+    });
+
+    if (!Investor) {
+      return res.status(404).json({ error: "해당 startUpId에 대한 투자자가 없습니다." });
+    }
+
+    res.json(Investor);
+  } catch (error) {
+    console.error("Error fetching Investor:", error);
+    res.status(500).json({ error: "Failed to fetch Investor" });
+  }
+});
+
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
 
