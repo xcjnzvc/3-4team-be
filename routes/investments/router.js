@@ -45,19 +45,44 @@ router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
+    const deletedInvestment = await prisma.mockInvestor.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    if (!deletedInvestment) {
+      return res.status(404).json({ error: "삭제할 투자 항목을 찾을 수 없음." });
+    }
+
+    // 투자 항목 삭제
     await prisma.mockInvestor.delete({
       where: {
         id: parseInt(id),
       },
     });
-    res
-      .status(200)
-      .json({ message: `MockInvestor의 id ${id} 성공적으로 삭제됨.` });
+
+    const updatedStartup = await prisma.startUp.update({
+      where: {
+        id: deletedInvestment.startUpId,
+      },
+      data: {
+        simInvest: {
+          decrement: deletedInvestment.investAmount,
+        },
+      },
+    });
+
+    res.status(200).json({
+      message: `MockInvestor의 id ${id} 성공적으로 삭제됨.`,
+      updatedStartup,
+    });
   } catch (error) {
     console.error("삭제 중 오류 발생:", error);
     res.status(500).json({ error: "삭제 실패함" });
   }
 });
+
 
 router.post("/", async (req, res) => {
   try {
