@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const investments = await prisma.startUp.findMany({
       include: {
@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -29,7 +29,9 @@ router.get('/:id', async (req, res) => {
     });
 
     if (!Investor) {
-      return res.status(404).json({ error: "해당 startUpId에 대한 투자자가 없습니다." });
+      return res
+        .status(404)
+        .json({ error: "해당 startUpId에 대한 투자자가 없습니다." });
     }
 
     res.json(Investor);
@@ -39,7 +41,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -48,15 +50,16 @@ router.delete('/:id', async (req, res) => {
         id: parseInt(id),
       },
     });
-    res.status(200).json({ message: `MockInvestor의 id ${id} 성공적으로 삭제됨.` });
+    res
+      .status(200)
+      .json({ message: `MockInvestor의 id ${id} 성공적으로 삭제됨.` });
   } catch (error) {
     console.error("삭제 중 오류 발생:", error);
     res.status(500).json({ error: "삭제 실패함" });
   }
 });
 
-
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { startUpId, name, investAmount, comment, password } = req.body;
 
@@ -67,21 +70,29 @@ router.post('/', async (req, res) => {
         investAmount,
         comment,
         password,
-      }
+      },
+    });
+
+    const totalinvest = await prisma.mockInvestor.aggregate({
+      _sum: { investAmount: true },
+      where: { startUpId },
+    });
+
+    await prisma.startUp.update({
+      where: { id: startUpId },
+      data: { simInvest: totalinvest._sum.investAmount || 0 },
     });
 
     res.status(201).json(newInvestment);
-
   } catch (error) {
-    console.error('투자 오류 발생: ', error);
+    console.error("투자 오류 발생: ", error);
     res.status(500).json({ error: "투자 실패함" });
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const { name, investAmount, comment, password } = req.body;
-
 
   try {
     const updatedData = await prisma.mockInvestor.update({
@@ -95,10 +106,9 @@ router.put('/:id', async (req, res) => {
     });
 
     res.json(updatedData);
-
   } catch (error) {
-    console.error('수정 실패:', error);
-    res.status(500).json({ error: '수정 실패' });
+    console.error("수정 실패:", error);
+    res.status(500).json({ error: "수정 실패" });
   }
 });
 
