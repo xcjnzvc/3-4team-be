@@ -126,22 +126,90 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
-  const { id } = req.params;
-  const { name, investAmount, comment, password } = req.body;
+// router.put("/:id", async (req, res) => {
+//   const { id } = req.params;
+//   const { name, investAmount, comment, password } = req.body;
+
+//   try {
+//     const updatedData = await prisma.mockInvestor.update({
+//       where: { id: parseInt(id) },
+//       data: {
+//         name,
+//         investAmount,
+//         comment,
+//         password,
+//       },
+//     });
+
+//     res.json(updatedData);
+//   } catch (error) {
+//     console.error("수정 실패:", error);
+//     res.status(500).json({ error: "수정 실패" });
+//   }
+// });
+
+router.post("/verify-password", async (req, res) => {
+  const { id, password } = req.body; // ID와 비밀번호를 받음
 
   try {
-    const updatedData = await prisma.mockInvestor.update({
-      where: { id: parseInt(id) },
+    const investment = await prisma.mockInvestor.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    // 투자 항목이 없을 경우 404 반환
+    if (!investment) {
+      return res.status(404).json({ error: "투자 항목을 찾을 수 없습니다." });
+    }
+
+    // 비밀번호 검증
+    if (investment.password !== password) {
+      return res.status(403).json({ error: "비밀번호가 틀렸습니다." });
+    }
+
+    // 비밀번호가 맞을 경우 성공 응답 반환
+    res.status(200).json({ message: "비밀번호가 올바릅니다." });
+  } catch (error) {
+    console.error("비밀번호 검증 실패:", error);
+    res.status(500).json({ error: "비밀번호 검증 중 문제가 발생했습니다." });
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name, investAmount, comment } = req.body; // 비밀번호는 받지 않음
+
+  try {
+    // 수정된 투자 항목 데이터 업데이트
+    const updatedInvestment = await prisma.mockInvestor.update({
+      where: {
+        id: parseInt(id),
+      },
       data: {
         name,
         investAmount,
         comment,
-        password,
       },
     });
 
-    res.json(updatedData);
+    // StartUp 모델의 simInvest 업데이트
+    const totalInvestAmount = await prisma.mockInvestor.aggregate({
+      _sum: { investAmount: true },
+      where: { startUpId: updatedInvestment.startUpId },
+    });
+
+    const updatedStartUp = await prisma.startUp.update({
+      where: { id: updatedInvestment.startUpId },
+      data: {
+        simInvest: totalInvestAmount._sum.investAmount || 0,
+      },
+    });
+
+    res.json({
+      updatedInvestment,
+      updatedStartUp,
+    });
   } catch (error) {
     console.error("수정 실패:", error);
     res.status(500).json({ error: "수정 실패" });
