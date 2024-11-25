@@ -43,16 +43,24 @@ router.get("/:id", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
+  const { password } = req.body; // 클라이언트로부터 전달받은 비밀번호
 
   try {
-    const deletedInvestment = await prisma.mockInvestor.findUnique({
+    // 삭제하려는 투자 항목 조회
+    const investment = await prisma.mockInvestor.findUnique({
       where: {
         id: parseInt(id),
       },
     });
 
-    if (!deletedInvestment) {
+    // 투자 항목이 존재하지 않으면 404 에러 반환
+    if (!investment) {
       return res.status(404).json({ error: "삭제할 투자 항목을 찾을 수 없음." });
+    }
+
+    // 비밀번호 검증
+    if (investment.password !== password) {
+      return res.status(403).json({ error: "비밀번호가 일치하지 않습니다." });
     }
 
     // 투자 항목 삭제
@@ -62,17 +70,19 @@ router.delete("/:id", async (req, res) => {
       },
     });
 
+    // 관련된 StartUp 모델의 투자 금액 감소
     const updatedStartup = await prisma.startUp.update({
       where: {
-        id: deletedInvestment.startUpId,
+        id: investment.startUpId,
       },
       data: {
         simInvest: {
-          decrement: deletedInvestment.investAmount,
+          decrement: investment.investAmount, // 투자 금액 만큼 감소
         },
       },
     });
 
+    // 성공 응답 반환
     res.status(200).json({
       message: `MockInvestor의 id ${id} 성공적으로 삭제됨.`,
       updatedStartup,
@@ -82,6 +92,7 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ error: "삭제 실패함" });
   }
 });
+
 
 
 router.post("/", async (req, res) => {
