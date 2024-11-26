@@ -319,8 +319,12 @@ async function main() {
     });
     console.log("카테고리 데이터 삽입 완료.");
 
+
+    await prisma.startUp.deleteMany();
+
     // 새로운 스타트업 데이터 삽입
     console.log("새로운 스타트업 데이터 삽입 중...");
+
     await prisma.startUp.createMany({
       data: mockStartups,
     });

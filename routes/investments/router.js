@@ -4,6 +4,10 @@ import { PrismaClient } from "@prisma/client";
 const router = express.Router();
 const prisma = new PrismaClient();
 
+//여기가 작업하는 공간
+
+
+
 router.get("/", async (req, res) => {
   try {
     const investments = await prisma.startUp.findMany({
@@ -17,6 +21,7 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch investments" });
   }
 });
+
 
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
@@ -215,5 +220,4 @@ router.put("/:id", async (req, res) => {
     res.status(500).json({ error: "수정 실패" });
   }
 });
-
 export default router;
