@@ -16,7 +16,8 @@ model StartUp {
   revenue      Int     @default(0)
   employees    Int     @default(0)
   description  String?
-  count        Int     @default(0)
+  myCount      Int     @default(0) // 나의 기업 선택 횟수
+  compareCount Int     @default(0) // 비교 기업 선택 횟수
 
   category      Category       @relation(fields: [categoryId], references: [id])
   mockInvestors MockInvestor[]
