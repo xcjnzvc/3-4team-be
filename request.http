@@ -1,0 +1,34 @@
+
+get http://localhost:8000/api/companies
+
+
+###
+get http://localhost:8000/api/companies?limit=5&offset=0&keyword=청정
+
+
+
+###
+GET http://localhost:8000/api/investments
+
+###
+POST http://localhost:8000/api/investments
+Content-Type: application/json
+
+{
+  "startUpId": 1,
+  "name": "haechan",
+  "investAmount": 5000,
+  "comment": "test POST",
+  "password": "1234"
+}
+
+###
+PUT http://localhost:8000/api/investments/1
+Content-Type: application/json
+
+{
+  "name": "haechan",
+  "investAmount": 5000,
+  "comment": "PUT POST",
+  "password": "1234"
+}

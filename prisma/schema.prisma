@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,4 +5,38 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model StartUp {
+  id           Int     @id @default(autoincrement())
+  name         String
+  categoryId   Int     @map("category_id")
+  actualInvest Int     @default(0)
+  simInvest    Int     @default(0)
+  revenue      Int     @default(0)
+  employees    Int     @default(0)
+  description  String?
+  myCount      Int     @default(0) // 나의 기업 선택 횟수
+  compareCount Int     @default(0) // 비교 기업 선택 횟수
+
+  category      Category       @relation(fields: [categoryId], references: [id])
+  mockInvestors MockInvestor[]
+}
+
+model MockInvestor {
+  id           Int    @id @default(autoincrement())
+  startUpId    Int
+  name         String @db.VarChar(10)
+  investAmount Int    @default(0)
+  comment      String
+  password     String @db.VarChar(40)
+
+  startup StartUp @relation(fields: [startUpId], references: [id])
+}
+
+model Category {
+  id       Int    @id @default(autoincrement())
+  category String @db.VarChar(20)
+
+  startups StartUp[]
 }
